@@ -72,7 +72,7 @@ class Edit extends Component {
                 <label for="description">Email:</label>
                 <input type="email" class="form-control" name="email" value={this.state.student.email} onChange={this.onChange} placeholder="Email Address" />
               </div>
-              <button type="submit" class="btn btn-default">Update</button>
+              <button type="submit" class="btn btn-dark btn-lg">Update</button>
             </form>
           </div>
         </div>

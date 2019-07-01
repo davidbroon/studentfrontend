@@ -106,5 +106,7 @@ only screen and (max-width: 760px),
 .col{
 	border: solid .5px #e6e6e6;
 }
-
+.tabledetails{
+	color:#e6e6e6;
+}
  

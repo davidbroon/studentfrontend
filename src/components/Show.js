@@ -43,7 +43,7 @@ class Show extends Component {
             <dl>
             <Row className="row">
             <Col className="col" xs={8} sm={6} md={4} lg={2}>
-              <dt>Name:</dt>
+              <dt className="tabledetails">Name:</dt>
               <dd>{this.state.student.name}</dd>
               </Col>
               <Col className="col" xs={8} sm={6} md={4} lg={2}>
