@@ -1,33 +1,110 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
   }
-  to {
-    transform: rotate(360deg);
+
+  html {
+	font-size: 10px;
+	font-family: "Roboto", sans-serif;
+	color: #eee;
+	height: 100%;
   }
+  
+  body {
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(#90Afc5, #336b87) no-repeat center fixed;
+	background-size: cover;
+  }
+  div{
+	  color: white;
+  }
+.container, .container-fluid {
+  margin-top: 20px;
+}  
+
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
 }
+/* Zebra striping */
+tr:nth-of-type(odd) { 
+  background: #2a3132;
+  border: solid 1px white;
+  color: #cccccc;
+}
+tr:nth-of-type(even) {
+	background: #763626;
+	color: #cccccc;
+
+}
+th { 
+  background: #333; 
+  color: white; 
+  font-weight: bold; 
+}
+td, th { 
+  padding: 6px; 
+  border: 1px solid #ccc; 
+  text-align: left; 
+}
+.row {
+	
+	justify-content: center;
+}
+@media 
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	table, thead, tbody, th, td, tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	tr { border: 1px solid #bfbfbf; }
+	
+	td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 50%; 
+    font-weight: bold;
+	}
+	
+	td:after { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+    
+	}
+	
+	/*
+	Label the data
+	*/
+	td:nth-of-type(1):before { content: "Name: "; }
+	td:nth-of-type(2):before { content: "Course Selected: "; }
+	td:nth-of-type(3):before { content: "Address: "; }
+	td:nth-of-type(4):before { content: "Email: "; }
+	td:nth-of-type(5):before { content: "Phone: "; }
+
+}
+
+.col{
+	border: solid .5px #e6e6e6;
+}
+
+ 

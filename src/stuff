@@ -1,0 +1,285 @@
+//
+App.js
+import React, { Component } from 'react';
+import './App.css';
+import Home from '/Users/thebroons/Desktop/BST/frontend/src/Home.js';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import StudentList from './StudentList';
+import StudentEdit from '/Users/thebroons/Desktop/BST/frontend/src/StudentEdit.js';
+
+class App extends Component {
+  render() {
+    return (
+      <Router>
+        <Switch>
+          <Route path='/' exact={true} component={Home}/>
+          <Route path='/students' exact={true} component={StudentList}/>
+          <Route path='/students/:id' exact={true} component={StudentEdit}/>
+        </Switch>
+      </Router>
+    )
+  }
+}
+
+export default App;
+
+Apphavbar.js
+import React, { Component } from 'react';
+import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
+import { Link } from 'react-router-dom';
+
+export default class AppNavbar extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {isOpen: false};
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
+  }
+
+  render() {
+    return <Navbar color="dark" dark expand="md">
+      <NavbarBrand tag={Link} to="/">Home</NavbarBrand>
+      <NavbarToggler onClick={this.toggle}/>
+      <Collapse isOpen={this.state.isOpen} navbar>
+        <Nav className="ml-auto" navbar>
+          <NavItem>
+            <NavLink
+              href="https://twitter.com/davidbroon">links</NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink href="https://github.com/davidbrown">GitHub</NavLink>
+          </NavItem>
+        </Nav>
+      </Collapse>
+    </Navbar>;
+  }
+}
+
+Home.js
+
+import React, { Component } from 'react';
+import './App.css';
+import AppNavbar from './AppNavbar';
+import { Link } from 'react-router-dom';
+import { Button, Container } from 'reactstrap';
+
+class Home extends Component {
+  render() {
+    return (
+      <div>
+        <AppNavbar/>
+        <Container fluid>
+          <Button color="link"><Link to="/students">Manage Students</Link></Button>
+        </Container>
+      </div>
+    );
+  }
+}
+
+export default Home;
+
+StudentList.js
+
+import React, { Component } from 'react';
+import { Button, ButtonGroup, Container, Table } from 'reactstrap';
+import AppNavbar from './AppNavbar';
+import { Link } from 'react-router-dom';
+
+class StudentList extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {students: [], isLoading: true};
+    this.remove = this.remove.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({isLoading: true});
+
+    fetch('api/students')
+      .then(response => response.json())
+      .then(data => this.setState({students: data, isLoading: false}));
+  }
+
+  async remove(id) {
+    await fetch(`/api/student/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then(() => {
+      let updatedStudents = [...this.state.students].filter(i => i.id !== id);
+      this.setState({students: updatedStudents});
+    });
+  }
+
+  render() {
+    const {students, isLoading} = this.state;
+
+    if (isLoading) {
+      return <p>Loading...</p>;
+    }
+
+    const studentList = students.map(student => {
+      const address = `${student.address || ''},  ${student.city || ''}`;
+      return <tr key={student.id}>
+        <td style={{whiteSpace: 'nowrap'}}>{student.name}</td>
+        <td>{address}</td>
+        <td>{student.field}</td>
+        <td>{student.email}</td>
+        <td>{student.phone}</td>
+        <td>
+        <ButtonGroup>     
+            <Button size="sm" color="primary" tag={Link} to={"/students/" + student.id}>Edit</Button>
+            <Button size="sm" color="danger" onClick={() => this.remove(student.id)}>Delete</Button>      
+        </ButtonGroup>
+            </td>
+      </tr>
+    });
+
+    return (
+      <div>
+        <AppNavbar/>
+        <Container fluid>
+          <div className="float-right">
+            <Button color="success" tag={Link} to="/students/new">Add Student</Button>
+          </div>
+          <h3>My Students</h3>
+          <Table className="mt-4">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Course Selected</th>
+              <th>Email</th>
+              <th>Phone #</th>
+              <th>Actions</th>
+            
+            </tr>
+            </thead>
+            <tbody>
+            {studentList}
+            </tbody>
+          </Table>
+        </Container>
+      </div>
+    );
+  }
+}
+
+export default StudentList;
+
+StudentEdit.js
+import React, { Component } from 'react';
+import { Link, withRouter } from 'react-router-dom';
+import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import AppNavbar from './AppNavbar';
+
+class StudentEdit extends Component {
+
+  emptyItem = {
+    name: '',
+    address: '',
+    city: '',
+    phone: '',
+    email: '',
+    field: ''
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      item: this.emptyItem
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  async componentDidMount() {
+    if (this.props.match.params.id !== 'new') {
+      const student = await (await fetch(`/api/student/${this.props.match.params.id}`)).json();
+      this.setState({item: student});
+    }
+  }
+
+  handleChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    let item = {...this.state.item};
+    item[name] = value;
+    this.setState({item});
+  }
+
+  async handleSubmit(event) {
+    event.preventDefault();
+    const {item} = this.state;
+
+    await fetch('/api/student', {
+      method: (item.id) ? 'PUT' : 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(item),
+    });
+    this.props.history.push('/students');
+  }
+
+  render() {
+    const {item} = this.state;
+    const title = <h2>{item.id ? 'Edit Student' : 'Add Student'}</h2>;
+
+    return <div>
+      <AppNavbar/>
+      <Container>
+        {title}
+        <Form onSubmit={this.handleSubmit}>
+          <FormGroup>
+            <Label for="name">Name</Label>
+            <Input type="text" name="name" id="name" value={item.name || ''}
+                   onChange={this.handleChange} autoComplete="name"/>
+          </FormGroup>
+          <FormGroup>
+            <Label for="address">Address</Label>
+            <Input type="text" name="address" id="address" value={item.address || ''}
+                   onChange={this.handleChange} autoComplete="address-level1"/>
+          </FormGroup>
+          <FormGroup>
+            <Label for="city">City</Label>
+            <Input type="text" name="city" id="city" value={item.city || ''}
+                   onChange={this.handleChange} autoComplete="address-level1"/>
+          </FormGroup>
+          <div className="row">
+            <FormGroup className="col-md-4 mb-3">
+              <Label for="phone">Phone</Label>
+              <Input type="text" name="phone" id="phone" value={item.phone || ''}
+                     onChange={this.handleChange} />
+            </FormGroup>
+            <FormGroup className="col-md-5 mb-3">
+              <Label for="email">Email</Label>
+              <Input type="text" name="email" id="email" value={item.email || ''}
+                     onChange={this.handleChange} autoComplete="email"/>
+            </FormGroup>
+            <FormGroup className="col-md-3 mb-3">
+              <Label for="email">Field</Label>
+              <Input type="text" name="field" id="field" value={item.field || ''}
+                     onChange={this.handleChange} />
+            </FormGroup>
+          </div>
+          <FormGroup>
+            <Button color="primary" type="submit">Save</Button>{' '}
+            <Button color="secondary" tag={Link} to="/students">Cancel</Button>
+          </FormGroup>
+        </Form>
+      </Container>
+    </div>
+  }
+}
+export default withRouter(StudentEdit);
